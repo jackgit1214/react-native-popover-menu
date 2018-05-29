@@ -1,14 +1,14 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { findNodeHandle, ViewPropTypes, NativeModules } from "react-native";
 import PropTypes from "prop-types";
-import { is } from "immutable";
-import resolveAssetSource from "react-native/Libraries/Image/resolveAssetSource";
+
+import RNVectorHelper from './RNVectorHelper'
 
 import { Menu } from "./Menu";
 
 const { RNPopoverMenu } = NativeModules;
 
-class Popover extends Component {
+class Popover extends PureComponent {
   static propTypes = {
     ...ViewPropTypes,
 
@@ -45,13 +45,25 @@ class Popover extends Component {
       props.menus.forEach(menu => {
         menu.menus &&
           menu.menus.forEach(subMenu => {
-            if (subMenu.icon && typeof subMenu.icon === "number") {
-              subMenu.icon = resolveAssetSource(subMenu.icon);
+            if (subMenu.icon && subMenu.icon.props) {
+              subMenu.icon = subMenu.icon.props;
+
+              let glyph = RNVectorHelper.Resolve(subMenu.icon.family, subMenu.icon.name);
+              subMenu.icon = Object.assign({}, subMenu.icon, {
+                glyph: glyph
+              });
+            } else if (subMenu.icon !== undefined) {
+              subMenu.icon = { name: subMenu.icon, family: "", glyph: "", color: "", size: 0 };
             }
           });
 
-        if (menu.icon && typeof menu.icon === "number") {
-          menu.icon = resolveAssetSource(menu.icon);
+        if (menu.icon && menu.icon.props) {
+          menu.icon = menu.icon.props;
+
+          let glyph = RNVectorHelper.Resolve(menu.icon.family, menu.icon.name);
+          menu.icon = Object.assign({}, menu.icon, { glyph: glyph });
+        } else if (menu.icon !== undefined) {
+          menu.icon = { name: menu.icon, family: "", glyph: "", color: "", size: 0 };
         }
       });
 
@@ -65,14 +77,6 @@ class Popover extends Component {
         props.onCancel && props.onCancel();
       }
     );
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (is(this.props, nextProps)) {
-      return false;
-    } else {
-      return true;
-    }
   }
 
   componentDidMount() {
@@ -93,10 +97,7 @@ class Popover extends Component {
         React.Children.map(mainItem.props.children, (item, index, items) => {
           subMenus.push({
             label: item.props.label,
-            icon:
-              item.props.icon === undefined
-                ? undefined
-                : resolveAssetSource(item.props.icon)
+            icon: item.props.icon
           });
         });
 
