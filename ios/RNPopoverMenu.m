@@ -19,8 +19,15 @@ RCT_EXPORT_METHOD(Show:(nonnull NSNumber *)view props:(nonnull NSDictionary *)pr
     
     NSString *title = [props objectForKey: @"title"];
     NSString *tintColor = [props objectForKey: @"tintColor"];
+    NSString *textColor = [props objectForKey: @"textColor"];
+    NSString *borderColor = [props objectForKey: @"borderColor"];
+    NSNumber *borderWidth = [props objectForKey: @"borderWidth"];
+    NSNumber *textMargin = [props objectForKey: @"textMargin"];
+    NSNumber *iconMargin = [props objectForKey: @"iconMargin"];
+    NSString *selectedRowBackgroundColor = [props objectForKey: @"selectedRowBackgroundColor"];
+    NSNumber *roundedArrow = [props objectForKey: @"roundedArrow"];
     
-    NSNumber *perferedWidth = [props objectForKey: @"perferedWidth"];
+    NSNumber *menuWidth = [props objectForKey: @"menuWidth"];
     NSNumber *rowHeight = [props objectForKey: @"rowHeight"];
     
     NSArray *menus = [props objectForKey: @"menus"];
@@ -51,20 +58,46 @@ RCT_EXPORT_METHOD(Show:(nonnull NSNumber *)view props:(nonnull NSDictionary *)pr
     } else {
         tintColr = [UIColor clearColor];
     }
+
+    UIColor *textColr;
+    if ([textColor length] > 0) {
+        textColr = [RNPopoverMenu colorFromHexCode: textColor];
+    }
+
+    UIColor *selectedRowBackgroundColr;
+    if ([selectedRowBackgroundColor length] > 0) {
+        selectedRowBackgroundColr = [RNPopoverMenu colorFromHexCode: selectedRowBackgroundColor];
+    }
     
-    [FTPopMenu showFTMenuForViewController:vc
-           fromView:target
-              title: title
-          menuArray: menuTitles
- menuImageNameArray: menuIcons
-      perferedWidth: [perferedWidth longValue]
-          rowHeight: [rowHeight longValue]
-          tintColor: tintColr
-          doneBlock:^(NSInteger selectedIndex) {
-              onDone(@[[NSNumber numberWithLong: selectedIndex]]);
-          } cancelBlock:^() {
-              onCancel(@[]);
-          }];
+    UIColor *borderColr;
+    if ([borderColor length] > 0) {
+        borderColr = [RNPopoverMenu colorFromHexCode: borderColor];
+    } else {
+        borderColr = [UIColor clearColor];
+    }
+    
+
+    FTPopOverMenuConfiguration *configuration = [FTPopOverMenuConfiguration defaultConfiguration];
+    configuration.menuRowHeight = [rowHeight longValue];
+    configuration.menuWidth = [menuWidth longValue];
+    configuration.textColor = textColr;
+    configuration.menuTextMargin = [textMargin longValue];
+    configuration.menuIconMargin = [iconMargin longValue];
+    configuration.selectedCellBackgroundColor = selectedRowBackgroundColr;
+    configuration.allowRoundedArrow = [roundedArrow boolValue];
+//    configuration.textFont = ...
+    configuration.tintColor = tintColr;
+    configuration.borderColor = borderColr;
+    configuration.borderWidth = [borderWidth longValue];
+//    configuration.textAlignment = ...
+//    configuration.ignoreImageOriginalColor = ...;// set 'ignoreImageOriginalColor' to YES, images color will be same as textColor
+//    configuration.allowRoundedArrow = ...// Default is 'NO', if sets to 'YES', the arrow will be drawn with round corner.
+
+    [FTPopOverMenu showForSender:target withMenuArray:menuTitles imageArray:menuIcons doneBlock:^(NSInteger selectedIndex) {
+        onDone(@[[NSNumber numberWithLong: selectedIndex]]);
+    } dismissBlock:^{
+        onCancel(@[]);
+    }];
 }
 
 - (UIImage *) generateVectorIcon: (NSDictionary *) icon {
