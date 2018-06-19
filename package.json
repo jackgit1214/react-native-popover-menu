@@ -1,9 +1,10 @@
 
 {
-  "name": "react-native-popover-menu",
+  "name": "@postillon/react-native-popover-menu",
   "version": "0.0.13",
   "description": "React Native: Native Popover Menu",
   "main": "js/RNPopoverMenu.js",
+  "private": false,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,8 +13,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/prscX/react-native-popover-menu.git"
+    "url": "git+https://github.com/postillonmedia/react-native-popover-menu.git"
   },
+  "bugs": {
+    "url": "https://github.com/postillonmedia/react-native-popover-menu/issues"
+  },
+  "homepage": "https://github.com/postillonmedia/react-native-popover-menu#readme",
   "dependencies": {
     "react-native-vector-icons": "4.6.0"
   },
